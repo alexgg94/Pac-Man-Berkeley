@@ -1,2 +1,2 @@
 # Pac-Man-Berkeley
-Pac-Man Berkeley project
+This is an implementation of the Pac-Man Berkeley project (http://ai.berkeley.edu/project_overview.html).
