@@ -196,14 +196,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
       """
       "*** YOUR CODE HERE ***"
-      v = -sys.maxint
-      actions = []           
+      alpha = -sys.maxint
+      beta = sys.maxint
+      action = None          
       for a in gameState.getLegalActions(0):
-        u = self.max_value(self.result(gameState, 0, a), 1, self.depth, -sys.maxint, sys.maxint)
-        if u == v: actions.append(a)
-        elif u >= v: v = u; actions = [a]
+        u = self.min_value(self.result(gameState, 0, a), 1, self.depth, alpha, beta)
+        if u > alpha:
+          alpha = u
+          action = a
 
-      return random.choice(actions)
+      return action
 
     def terminalTest(self, gameState, depth):
       return gameState.isWin() or gameState.isLose() or depth == 0
@@ -219,7 +221,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       v = -sys.maxint
       for a in gameState.getLegalActions(agent):
         v = max(v, self.min_value(self.result(gameState, agent, a), 1, depth, alpha, beta))
-        if(v >= beta):
+        if(v > beta):
           return v
         alpha = max(alpha, v)
       return v
@@ -232,7 +234,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           v = min(v, self.max_value(self.result(gameState, agent, a), 0, depth-1, alpha, beta))
         else:
           v = min(v, self.min_value(self.result(gameState, agent, a), agent+1, depth, alpha, beta))
-        if(v <= alpha):
+        if(v < alpha):
           return v
         beta = min(beta, v)
       return v
@@ -295,6 +297,7 @@ def betterEvaluationFunction(currentGameState):
   """
   newPos = currentGameState.getPacmanPosition()
   newFood = currentGameState.getFood()
+  capsules = currentGameState.getCapsules()
   newGhostStates = currentGameState.getGhostStates()
   newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
@@ -316,6 +319,13 @@ def betterEvaluationFunction(currentGameState):
         total_score+=2000
       else:
         total_score-=200
+
+  for capsule in capsules:
+    d = manhattanDistance(capsule, newPos)
+    if (d==0):
+      total_score+=100
+    else:
+      total_score+=1.0/(d*d)
 
   return total_score + 10*currentGameState.getScore()
 
